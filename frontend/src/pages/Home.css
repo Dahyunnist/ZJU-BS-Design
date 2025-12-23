@@ -1,0 +1,52 @@
+.home-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.home-content {
+  padding: 20px;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+}
+
+.welcome-section h2 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.welcome-section p {
+  color: #666;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 30px 20px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.feature-card:active {
+  transform: scale(0.95);
+}
+
+.feature-icon {
+  margin-bottom: 15px;
+  color: #667eea;
+}
+
+.feature-card h3 {
+  margin: 10px 0;
+  color: #333;
+}
+
+.feature-card p {
+  color: #666;
+  font-size: 14px;
+}
+

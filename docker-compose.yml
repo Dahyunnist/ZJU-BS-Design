@@ -1,0 +1,61 @@
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: image-manager-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: image_db
+      MYSQL_USER: imageuser
+      MYSQL_PASSWORD: imagepass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - image-manager-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: image-manager-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/image_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_SERVLET_MULTIPART_MAX-FILE-SIZE: 20MB
+      SPRING_SERVLET_MULTIPART_MAX-REQUEST-SIZE: 20MB
+    depends_on:
+      - mysql
+    volumes:
+      - ./uploads:/app/uploads
+      - ./thumbnails:/app/thumbnails
+    restart: unless-stopped
+    networks:
+      - image-manager-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: image-manager-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - image-manager-network
+
+volumes:
+  mysql_data:
+
+networks:
+  image-manager-network:
+    driver: bridge
+
