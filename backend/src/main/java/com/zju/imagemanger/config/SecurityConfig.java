@@ -22,7 +22,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/register", "/auth/login").permitAll()
                 .requestMatchers("/mcp/**").permitAll()
-                .requestMatchers("/images/*/thumbnail", "/images/*/thumbnail/**").permitAll()
+                // 缩略图和原图文件用于 <img> 标签展示，不带 Authorization，需要放行
+                .requestMatchers("/images/*/thumbnail", "/images/*/thumbnail/**", "/images/*/file").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

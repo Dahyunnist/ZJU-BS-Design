@@ -123,5 +123,31 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- 使用国内 Maven 镜像仓库，解决在 Docker 内访问 repo.maven.apache.org 失败的问题 -->
+    <repositories>
+        <repository>
+            <id>aliyun-public</id>
+            <name>Aliyun Maven Public</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>aliyun-spring</id>
+            <name>Aliyun Spring</name>
+            <url>https://maven.aliyun.com/repository/spring</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
 
