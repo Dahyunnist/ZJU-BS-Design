@@ -1,8 +1,10 @@
 package com.zju.imagemanger.controller;
 
 import com.zju.imagemanger.dto.ApiResponse;
+import com.zju.imagemanger.dto.ImageEditRequest;
 import com.zju.imagemanger.entity.Image;
 import com.zju.imagemanger.entity.Tag;
+import com.zju.imagemanger.service.ImageEditService;
 import com.zju.imagemanger.service.ImageService;
 import com.zju.imagemanger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,6 +36,9 @@ public class ImageController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private ImageEditService imageEditService;
 
     @Value("${file.thumbnail-dir}")
     private String thumbnailDir;
@@ -163,14 +169,85 @@ public class ImageController {
         }
     }
 
+    @PostMapping("/{id}/edit")
+    public ApiResponse<ImageResponse> editImage(
+            @PathVariable Long id,
+            @RequestBody ImageEditRequest request,
+            Authentication authentication) {
+        try {
+            String username = authentication.getName();
+            Long userId = userService.getUserByUsername(username).getId();
+            
+            Long newImageId;
+            if (request.getType() == ImageEditRequest.EditType.CROP && request.getCrop() != null) {
+                var crop = request.getCrop();
+                newImageId = imageEditService.cropImage(id, userId, crop.getX(), crop.getY(), 
+                                                       crop.getWidth(), crop.getHeight());
+            } else if (request.getType() == ImageEditRequest.EditType.ADJUST && request.getAdjust() != null) {
+                var adjust = request.getAdjust();
+                newImageId = imageEditService.adjustImageColors(id, userId, 
+                                                               adjust.getBrightness(), 
+                                                               adjust.getContrast(), 
+                                                               adjust.getSaturation());
+            } else {
+                return ApiResponse.error("编辑参数无效");
+            }
+            
+            // 如果提供了标签，保存标签
+            if (request.getTags() != null && !request.getTags().isEmpty()) {
+                Image newImage = imageService.getImageById(newImageId, userId);
+                imageService.saveTags(newImage, request.getTags(), Tag.TagType.CUSTOM);
+            }
+            
+            Image newImage = imageService.getImageById(newImageId, userId);
+            return ApiResponse.success("编辑成功", toResponse(newImage));
+        } catch (Exception e) {
+            return ApiResponse.error("编辑失败: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/tags")
+    public ApiResponse<ImageResponse> updateImageTags(
+            @PathVariable Long id,
+            @RequestBody Map<String, List<String>> request,
+            Authentication authentication) {
+        try {
+            String username = authentication.getName();
+            Long userId = userService.getUserByUsername(username).getId();
+            
+            List<String> tags = request.get("tags");
+            imageService.updateImageTags(id, userId, tags);
+            
+            Image image = imageService.getImageById(id, userId);
+            return ApiResponse.success("标签更新成功", toResponse(image));
+        } catch (Exception e) {
+            return ApiResponse.error("标签更新失败: " + e.getMessage());
+        }
+    }
+
     private ImageResponse toResponse(Image image) {
         List<Tag> tags = imageService.getImageTags(image.getId());
         List<String> customTags = tags.stream()
                 .filter(t -> t.getType() == Tag.TagType.CUSTOM)
                 .map(Tag::getName)
                 .collect(Collectors.toList());
+        
+        List<String> exifTags = tags.stream()
+                .filter(t -> t.getType() == Tag.TagType.EXIF)
+                .map(Tag::getName)
+                .collect(Collectors.toList());
+        
+        List<String> aiTags = tags.stream()
+                .filter(t -> t.getType() == Tag.TagType.AI)
+                .map(Tag::getName)
+                .collect(Collectors.toList());
 
-        // 仅返回用户自定义标签
+        // 合并所有标签
+        List<String> allTags = new ArrayList<>();
+        allTags.addAll(customTags);
+        allTags.addAll(exifTags);
+        allTags.addAll(aiTags);
+
         return new ImageResponse(
                 image.getId(),
                 image.getUserId(),
@@ -184,7 +261,7 @@ public class ImageController {
                 image.getExifData(),
                 image.getAiTags(),
                 customTags,
-                customTags // tags字段与customTags保持一致
+                allTags // tags字段包含所有类型的标签
         );
     }
 

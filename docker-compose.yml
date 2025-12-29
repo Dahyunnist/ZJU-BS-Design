@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
     container_name: image-manager-backend
     ports:
-      - "8080:8080"
+      - "0.0.0.0:8080:8080"  # 明确绑定到所有网络接口，允许外部访问
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/image_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
@@ -45,7 +45,7 @@ services:
       dockerfile: Dockerfile
     container_name: image-manager-frontend
     ports:
-      - "3000:3000"
+      - "0.0.0.0:3000:3000"  # 明确绑定到所有网络接口，允许外部访问
     depends_on:
       - backend
     restart: unless-stopped

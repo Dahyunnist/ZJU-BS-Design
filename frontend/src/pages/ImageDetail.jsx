@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { NavBar, Image, Button, Toast, Tag, Card, Space } from 'antd-mobile'
-import { DeleteOutline } from 'antd-mobile-icons'
+import { NavBar, Image, Button, Toast, Tag, Card, Space, Input } from 'antd-mobile'
+import { DeleteOutline, EditSOutline } from 'antd-mobile-icons'
 import api from '../utils/api'
 import './ImageDetail.css'
 
@@ -11,6 +11,10 @@ function ImageDetail() {
   const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
+  const [editingTags, setEditingTags] = useState(false)
+  const [tags, setTags] = useState([])
+  const [tagInput, setTagInput] = useState('')
+  const [savingTags, setSavingTags] = useState(false)
 
   useEffect(() => {
     loadImage()
@@ -20,12 +24,54 @@ function ImageDetail() {
     try {
       const response = await api.get(`/images/${id}`)
       setImage(response.data.data)
+      // 初始化标签（只显示自定义标签）
+      if (response.data.data.customTags) {
+        setTags([...response.data.data.customTags])
+      } else {
+        setTags([])
+      }
     } catch (error) {
       Toast.show({ icon: 'fail', content: '加载失败' })
       navigate('/gallery')
     } finally {
       setLoading(false)
     }
+  }
+
+  const addTag = () => {
+    const trimmed = tagInput.trim()
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed])
+      setTagInput('')
+    }
+  }
+
+  const removeTag = (tag) => {
+    setTags(tags.filter(t => t !== tag))
+  }
+
+  const handleSaveTags = async () => {
+    setSavingTags(true)
+    try {
+      await api.put(`/images/${id}/tags`, { tags })
+      Toast.show({ icon: 'success', content: '标签保存成功' })
+      setEditingTags(false)
+      loadImage() // 重新加载图片信息
+    } catch (error) {
+      Toast.show({ icon: 'fail', content: '标签保存失败: ' + (error.response?.data?.message || error.message) })
+    } finally {
+      setSavingTags(false)
+    }
+  }
+
+  const handleCancelEditTags = () => {
+    // 恢复原始标签
+    if (image && image.customTags) {
+      setTags([...image.customTags])
+    } else {
+      setTags([])
+    }
+    setEditingTags(false)
   }
 
   const handleDelete = async () => {
@@ -58,14 +104,23 @@ function ImageDetail() {
       <NavBar
         onBack={() => navigate(-1)}
         right={
-          <Button
-            size="small"
-            color="danger"
-            onClick={handleDelete}
-            loading={deleting}
-          >
-            <DeleteOutline /> 删除
-          </Button>
+          <Space>
+            <Button
+              size="small"
+              color="primary"
+              onClick={() => navigate(`/image/${id}/edit`)}
+            >
+              <EditSOutline /> 编辑
+            </Button>
+            <Button
+              size="small"
+              color="danger"
+              onClick={handleDelete}
+              loading={deleting}
+            >
+              <DeleteOutline /> 删除
+            </Button>
+          </Space>
         }
       >
         图片详情
@@ -84,18 +139,66 @@ function ImageDetail() {
             <strong>文件名：</strong>
             <span>{image.filename}</span>
           </div>
-          {image.tags && image.tags.length > 0 && (
-            <div className="image-info-item">
+          <div className="image-info-item">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <strong>标签：</strong>
-              <Space wrap>
-                {image.tags.map((tag, idx) => (
-                  <Tag key={idx} color="primary">
-                    {tag}
-                  </Tag>
-                ))}
-              </Space>
+              {!editingTags && (
+                <Button size="mini" onClick={() => setEditingTags(true)}>
+                  编辑
+                </Button>
+              )}
             </div>
-          )}
+            {editingTags ? (
+              <div>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <Input
+                    value={tagInput}
+                    onChange={setTagInput}
+                    placeholder="输入标签后按回车"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        addTag()
+                      }
+                    }}
+                    style={{ flex: 1 }}
+                  />
+                  <Button size="small" onClick={addTag}>添加</Button>
+                </div>
+                <Space wrap style={{ marginBottom: 8 }}>
+                  {tags.map((tag, idx) => (
+                    <Tag
+                      key={idx}
+                      color="primary"
+                      closeable
+                      onClose={() => removeTag(tag)}
+                    >
+                      {tag}
+                    </Tag>
+                  ))}
+                </Space>
+                <Space>
+                  <Button size="small" color="primary" onClick={handleSaveTags} loading={savingTags}>
+                    保存
+                  </Button>
+                  <Button size="small" onClick={handleCancelEditTags}>
+                    取消
+                  </Button>
+                </Space>
+              </div>
+            ) : (
+              <Space wrap>
+                {image.tags && image.tags.length > 0 ? (
+                  image.tags.map((tag, idx) => (
+                    <Tag key={idx} color="primary">
+                      {tag}
+                    </Tag>
+                  ))
+                ) : (
+                  <span style={{ color: '#999' }}>暂无标签</span>
+                )}
+              </Space>
+            )}
+          </div>
           {image.width && image.height && (
             <div className="image-info-item">
               <strong>尺寸：</strong>

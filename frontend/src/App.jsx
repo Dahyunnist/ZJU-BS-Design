@@ -8,6 +8,8 @@ import Home from './pages/Home'
 import Upload from './pages/Upload'
 import Gallery from './pages/Gallery'
 import ImageDetail from './pages/ImageDetail'
+import ImageEdit from './pages/ImageEdit'
+import Slideshow from './pages/Slideshow'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import './App.css'
 
@@ -25,6 +27,8 @@ function AppRoutes() {
       <Route path="/upload" element={<PrivateRoute><Upload /></PrivateRoute>} />
       <Route path="/gallery" element={<PrivateRoute><Gallery /></PrivateRoute>} />
       <Route path="/image/:id" element={<PrivateRoute><ImageDetail /></PrivateRoute>} />
+      <Route path="/image/:id/edit" element={<PrivateRoute><ImageEdit /></PrivateRoute>} />
+      <Route path="/slideshow" element={<PrivateRoute><Slideshow /></PrivateRoute>} />
     </Routes>
   )
 }

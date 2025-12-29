@@ -13,10 +13,19 @@
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s;
+  position: relative;
 }
 
 .image-item:active {
   transform: scale(0.95);
+}
+
+.image-item.select-mode {
+  border: 2px solid transparent;
+}
+
+.image-item.select-mode.selected {
+  border: 2px solid #1677ff;
 }
 
 .gallery-image {

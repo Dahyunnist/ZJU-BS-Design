@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { NavBar, Grid, Image, InfiniteScroll, SearchBar, Toast, Space, Tag } from 'antd-mobile'
+import { NavBar, Grid, Image, InfiniteScroll, SearchBar, Toast, Space, Tag, Button, Checkbox } from 'antd-mobile'
 import api from '../utils/api'
 import './Gallery.css'
 
@@ -11,6 +11,8 @@ function Gallery() {
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(0)
   const [keyword, setKeyword] = useState('')
+  const [selectedIds, setSelectedIds] = useState(new Set())
+  const [selectMode, setSelectMode] = useState(false)
 
   const loadImages = async (reset = false) => {
     if (loading) return
@@ -36,7 +38,9 @@ function Gallery() {
       setHasMore(!response.data.data.last)
       setPage(currentPage + 1)
     } catch (error) {
-      Toast.show({ icon: 'fail', content: '加载失败' })
+      console.error('加载图片失败:', error)
+      const errorMsg = error.response?.data?.message || error.message || '加载失败'
+      Toast.show({ icon: 'fail', content: `加载失败: ${errorMsg}` })
     } finally {
       setLoading(false)
     }
@@ -96,9 +100,56 @@ function Gallery() {
     }
   }
 
+  const toggleSelect = (imageId) => {
+    const newSelected = new Set(selectedIds)
+    if (newSelected.has(imageId)) {
+      newSelected.delete(imageId)
+    } else {
+      newSelected.add(imageId)
+    }
+    setSelectedIds(newSelected)
+  }
+
+  const handleStartSlideshow = () => {
+    if (selectedIds.size === 0) {
+      Toast.show({ icon: 'fail', content: '请至少选择一张图片' })
+      return
+    }
+    const ids = Array.from(selectedIds).join(',')
+    navigate(`/slideshow?ids=${ids}`)
+  }
+
   return (
     <div className="gallery-container">
-      <NavBar onBack={() => navigate(-1)}>图片库</NavBar>
+      <NavBar 
+        onBack={() => navigate(-1)}
+        right={
+          selectMode ? (
+            <Space>
+              <Button size="small" onClick={() => {
+                setSelectMode(false)
+                setSelectedIds(new Set())
+              }}>
+                取消
+              </Button>
+              <Button 
+                size="small" 
+                color="primary"
+                onClick={handleStartSlideshow}
+                disabled={selectedIds.size === 0}
+              >
+                轮播({selectedIds.size})
+              </Button>
+            </Space>
+          ) : (
+            <Button size="small" onClick={() => setSelectMode(true)}>
+              选择
+            </Button>
+          )
+        }
+      >
+        图片库
+      </NavBar>
       <div className="gallery-content">
         <SearchBar
           placeholder="搜索图片..."
@@ -111,9 +162,22 @@ function Gallery() {
           {images.map((image) => (
             <Grid.Item key={image.id}>
               <div
-                className="image-item"
-                onClick={() => navigate(`/image/${image.id}`)}
+                className={`image-item ${selectMode ? 'select-mode' : ''} ${selectedIds.has(image.id) ? 'selected' : ''}`}
+                onClick={() => {
+                  if (selectMode) {
+                    toggleSelect(image.id)
+                  } else {
+                    navigate(`/image/${image.id}`)
+                  }
+                }}
               >
+                {selectMode && (
+                  <Checkbox
+                    checked={selectedIds.has(image.id)}
+                    onChange={() => toggleSelect(image.id)}
+                    style={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}
+                  />
+                )}
                 <Image
                   src={`/api/images/${image.id}/thumbnail?size=600`}
                   alt={image.filename}

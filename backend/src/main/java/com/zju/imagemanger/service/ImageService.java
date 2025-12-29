@@ -100,7 +100,7 @@ public class ImageService {
         // 生成缩略图
         thumbnailGenerator.generateThumbnails(filePath.toFile(), image.getId().toString());
 
-        // 仅保存用户自定义标签
+        // 保存用户自定义标签
         List<String> customTagList = new ArrayList<>();
         if (customTags != null) {
             customTags.forEach(t -> {
@@ -112,8 +112,13 @@ public class ImageService {
                 }
             });
         }
-
         saveTags(image, customTagList, Tag.TagType.CUSTOM);
+
+        // 从EXIF信息自动创建标签
+        List<String> exifTags = exifExtractor.extractTagsFromExif(exifData);
+        if (!exifTags.isEmpty()) {
+            saveTags(image, exifTags, Tag.TagType.EXIF);
+        }
 
         return image;
     }
@@ -167,7 +172,34 @@ public class ImageService {
         return tagRepository.findAllById(tagIds);
     }
 
-    private void saveTags(Image image, List<String> names, Tag.TagType type) {
+    @Transactional
+    public void updateImageTags(Long imageId, Long userId, List<String> customTags) {
+        Image image = getImageById(imageId, userId);
+        
+        // 获取所有现有的标签关联
+        List<ImageTag> allImageTags = imageTagRepository.findByImageId(imageId);
+        List<Tag> allTags = tagRepository.findAllById(
+            allImageTags.stream().map(ImageTag::getTagId).collect(Collectors.toList())
+        );
+        
+        // 删除旧的用户自定义标签关联
+        for (ImageTag imageTag : allImageTags) {
+            Tag tag = allTags.stream()
+                    .filter(t -> t.getId().equals(imageTag.getTagId()))
+                    .findFirst()
+                    .orElse(null);
+            if (tag != null && tag.getType() == Tag.TagType.CUSTOM) {
+                imageTagRepository.delete(imageTag);
+            }
+        }
+        
+        // 保存新的自定义标签
+        if (customTags != null && !customTags.isEmpty()) {
+            saveTags(image, customTags, Tag.TagType.CUSTOM);
+        }
+    }
+
+    public void saveTags(Image image, List<String> names, Tag.TagType type) {
         if (names == null || names.isEmpty()) {
             return;
         }

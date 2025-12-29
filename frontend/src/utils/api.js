@@ -29,9 +29,14 @@ api.interceptors.response.use(
     return response
   },
   error => {
-    if (error.response?.status === 401) {
+    // 401未授权或403禁止访问，都可能是token问题
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.warn('认证失败，清除token并跳转到登录页', error.response?.status)
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      // 避免重复跳转
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
