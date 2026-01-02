@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { NavBar, Image, Button, Toast, Tag, Card, Space, Input } from 'antd-mobile'
+import { NavBar, Button, Toast, Tag, Card, Space, Input } from 'antd-mobile'
 import { DeleteOutline, EditSOutline } from 'antd-mobile-icons'
 import api from '../utils/api'
 import './ImageDetail.css'
@@ -126,108 +126,115 @@ function ImageDetail() {
         图片详情
       </NavBar>
       <div className="image-detail-content">
-        <Card>
-          <Image
-            src={`/api/images/${id}/file`}
-            alt={image.filename}
-            fit="contain"
-            style={{ width: '100%', height: 'auto', maxHeight: '80vh', objectFit: 'contain', background: '#f7f7f7' }}
-          />
-        </Card>
-        <Card title="图片信息" style={{ marginTop: 16 }}>
-          <div className="image-info-item">
-            <strong>文件名：</strong>
-            <span>{image.filename}</span>
-          </div>
-          <div className="image-info-item">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <strong>标签：</strong>
-              {!editingTags && (
-                <Button size="mini" onClick={() => setEditingTags(true)}>
-                  编辑
-                </Button>
-              )}
-            </div>
-            {editingTags ? (
-              <div>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                  <Input
-                    value={tagInput}
-                    onChange={setTagInput}
-                    placeholder="输入标签后按回车"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        addTag()
-                      }
-                    }}
-                    style={{ flex: 1 }}
-                  />
-                  <Button size="small" onClick={addTag}>添加</Button>
-                </div>
-                <Space wrap style={{ marginBottom: 8 }}>
-                  {tags.map((tag, idx) => (
-                    <Tag
-                      key={idx}
-                      color="primary"
-                      closeable
-                      onClose={() => removeTag(tag)}
-                    >
-                      {tag}
-                    </Tag>
-                  ))}
-                </Space>
-                <Space>
-                  <Button size="small" color="primary" onClick={handleSaveTags} loading={savingTags}>
-                    保存
-                  </Button>
-                  <Button size="small" onClick={handleCancelEditTags}>
-                    取消
-                  </Button>
-                </Space>
+        <div className="image-detail-layout">
+          <div className="image-info-section">
+            <Card title="图片信息">
+              <div className="image-info-item">
+                <strong>文件名：</strong>
+                <span>{image.filename}</span>
               </div>
-            ) : (
-              <Space wrap>
-                {image.tags && image.tags.length > 0 ? (
-                  image.tags.map((tag, idx) => (
-                    <Tag key={idx} color="primary">
-                      {tag}
-                    </Tag>
-                  ))
+              <div className="image-info-item">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <strong>标签：</strong>
+                  {!editingTags && (
+                    <Button size="mini" onClick={() => setEditingTags(true)}>
+                      编辑
+                    </Button>
+                  )}
+                </div>
+                {editingTags ? (
+                  <div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <Input
+                        value={tagInput}
+                        onChange={setTagInput}
+                        placeholder="输入标签后按回车"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            addTag()
+                          }
+                        }}
+                        style={{ flex: 1 }}
+                      />
+                      <Button size="small" onClick={addTag}>添加</Button>
+                    </div>
+                    <Space wrap style={{ marginBottom: 8 }}>
+                      {tags.map((tag, idx) => (
+                        <Tag
+                          key={idx}
+                          color="primary"
+                          closeable
+                          onClose={() => removeTag(tag)}
+                        >
+                          {tag}
+                        </Tag>
+                      ))}
+                    </Space>
+                    <Space>
+                      <Button size="small" color="primary" onClick={handleSaveTags} loading={savingTags}>
+                        保存
+                      </Button>
+                      <Button size="small" onClick={handleCancelEditTags}>
+                        取消
+                      </Button>
+                    </Space>
+                  </div>
                 ) : (
-                  <span style={{ color: '#999' }}>暂无标签</span>
+                  <Space wrap>
+                    {image.tags && image.tags.length > 0 ? (
+                      image.tags.map((tag, idx) => (
+                        <Tag key={idx} color="primary">
+                          {tag}
+                        </Tag>
+                      ))
+                    ) : (
+                      <span style={{ color: '#999' }}>暂无标签</span>
+                    )}
+                  </Space>
                 )}
-              </Space>
+              </div>
+              {image.width && image.height && (
+                <div className="image-info-item">
+                  <strong>尺寸：</strong>
+                  <span>{image.width} × {image.height}</span>
+                </div>
+              )}
+              {image.fileSize && (
+                <div className="image-info-item">
+                  <strong>大小：</strong>
+                  <span>{(image.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                </div>
+              )}
+              {image.uploadTime && (
+                <div className="image-info-item">
+                  <strong>上传时间：</strong>
+                  <span>{new Date(image.uploadTime).toLocaleString()}</span>
+                </div>
+              )}
+            </Card>
+            {image.exifData && Object.keys(image.exifData).length > 0 && (
+              <Card title="EXIF信息" style={{ marginTop: 16 }}>
+                {Object.entries(image.exifData).map(([key, value]) => (
+                  <div key={key} className="image-info-item">
+                    <strong>{key}：</strong>
+                    <span>{String(value)}</span>
+                  </div>
+                ))}
+              </Card>
             )}
           </div>
-          {image.width && image.height && (
-            <div className="image-info-item">
-              <strong>尺寸：</strong>
-              <span>{image.width} × {image.height}</span>
-            </div>
-          )}
-          {image.fileSize && (
-            <div className="image-info-item">
-              <strong>大小：</strong>
-              <span>{(image.fileSize / 1024 / 1024).toFixed(2)} MB</span>
-            </div>
-          )}
-          {image.uploadTime && (
-            <div className="image-info-item">
-              <strong>上传时间：</strong>
-              <span>{new Date(image.uploadTime).toLocaleString()}</span>
-            </div>
-          )}
-        </Card>
-        {image.exifData && Object.keys(image.exifData).length > 0 && (
-          <Card title="EXIF信息" style={{ marginTop: 16 }}>
-            {Object.entries(image.exifData).map(([key, value]) => (
-              <div key={key} className="image-info-item">
-                <strong>{key}：</strong>
-                <span>{String(value)}</span>
+          <div className="image-display-section">
+            <Card>
+              <div className="image-wrapper">
+                <img
+                  src={`/api/images/${id}/file`}
+                  alt={image.filename}
+                  className="detail-image-content"
+                />
               </div>
-            ))}
-          </Card>
-        )}
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

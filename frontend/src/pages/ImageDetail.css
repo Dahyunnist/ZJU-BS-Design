@@ -7,6 +7,48 @@
   padding: 20px;
 }
 
+.image-detail-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.image-info-section {
+  flex: 1 1 auto;
+  min-width: 350px;
+  max-width: 500px;
+}
+
+.image-display-section {
+  flex: 0 1 auto;
+  min-width: 300px;
+  max-width: 60%;
+}
+
+.image-wrapper {
+  width: 100%;
+  height: calc(100vh - 120px);
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f7f7;
+  overflow: auto;
+  padding: 10px;
+}
+
+.detail-image-content {
+  max-width: 100%;
+  max-height: calc(100vh - 140px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .detail-image {
   width: 100%;
   max-height: 60vh;
@@ -30,5 +72,27 @@
 
 .image-info-item span {
   color: #666;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .image-detail-layout {
+    flex-direction: column;
+  }
+
+  .image-info-section {
+    flex: 1;
+    width: 100%;
+  }
+
+  .image-display-section {
+    flex: 1;
+    width: 100%;
+  }
+
+  .image-wrapper {
+    height: 60vh;
+    min-height: 400px;
+  }
 }
 
