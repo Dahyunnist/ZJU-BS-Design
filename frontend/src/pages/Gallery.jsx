@@ -126,23 +126,32 @@ function Gallery() {
         right={
           selectMode ? (
             <Space>
-              <Button size="small" onClick={() => {
-                setSelectMode(false)
-                setSelectedIds(new Set())
-              }}>
+              <Button 
+                size="large" 
+                onClick={() => {
+                  setSelectMode(false)
+                  setSelectedIds(new Set())
+                }}
+                style={{ fontSize: '16px', fontWeight: 600 }}
+              >
                 取消
               </Button>
               <Button 
-                size="small" 
+                size="large" 
                 color="primary"
                 onClick={handleStartSlideshow}
                 disabled={selectedIds.size === 0}
+                style={{ fontSize: '16px', fontWeight: 600 }}
               >
                 轮播({selectedIds.size})
               </Button>
             </Space>
           ) : (
-            <Button size="small" onClick={() => setSelectMode(true)}>
+            <Button 
+              size="large" 
+              onClick={() => setSelectMode(true)}
+              style={{ fontSize: '16px', fontWeight: 600 }}
+            >
               选择
             </Button>
           )

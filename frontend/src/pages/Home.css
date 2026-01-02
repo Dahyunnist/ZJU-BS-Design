@@ -1,6 +1,6 @@
 .home-container {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: transparent;
 }
 
 .home-content {
@@ -9,44 +9,80 @@
 
 .welcome-section {
   text-align: center;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
+  margin-bottom: 40px;
+  padding: 30px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .welcome-section h2 {
   margin-bottom: 10px;
   color: #333;
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .welcome-section p {
   color: #666;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .feature-card {
   text-align: center;
-  padding: 30px 20px;
+  padding: 40px 20px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .feature-card:active {
-  transform: scale(0.95);
+  transform: translateY(-2px) scale(0.98);
 }
 
 .feature-icon {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   color: #667eea;
+  font-size: 56px !important;
 }
 
 .feature-card h3 {
-  margin: 10px 0;
+  margin: 15px 0;
   color: #333;
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .feature-card p {
   color: #666;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* 退出按钮样式 */
+.home-container .adm-nav-bar-right .adm-button {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  color: #f5576c !important;
+  font-weight: 600 !important;
 }
 

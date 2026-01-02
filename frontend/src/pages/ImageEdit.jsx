@@ -251,7 +251,14 @@ function ImageEdit() {
                     }}
                     style={{ flex: 1 }}
                   />
-                  <Button size="small" onClick={addTag}>添加</Button>
+                  <Button 
+                    size="middle" 
+                    onClick={addTag}
+                    color="primary"
+                    style={{ fontSize: '14px', fontWeight: 600, minWidth: '80px' }}
+                  >
+                    添加
+                  </Button>
                 </div>
                 <Space wrap>
                   {tags.map((tag, idx) => (
@@ -344,7 +351,14 @@ function ImageEdit() {
                     }}
                     style={{ flex: 1 }}
                   />
-                  <Button size="small" onClick={addTag}>添加</Button>
+                  <Button 
+                    size="middle" 
+                    onClick={addTag}
+                    color="primary"
+                    style={{ fontSize: '14px', fontWeight: 600, minWidth: '80px' }}
+                  >
+                    添加
+                  </Button>
                 </div>
                 <Space wrap>
                   {tags.map((tag, idx) => (

@@ -106,17 +106,19 @@ function ImageDetail() {
         right={
           <Space>
             <Button
-              size="small"
+              size="large"
               color="primary"
               onClick={() => navigate(`/image/${id}/edit`)}
+              style={{ fontSize: '16px', fontWeight: 600 }}
             >
               <EditSOutline /> 编辑
             </Button>
             <Button
-              size="small"
+              size="large"
               color="danger"
               onClick={handleDelete}
               loading={deleting}
+              style={{ fontSize: '16px', fontWeight: 600 }}
             >
               <DeleteOutline /> 删除
             </Button>
@@ -136,11 +138,16 @@ function ImageDetail() {
               <div className="image-info-item">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <strong>标签：</strong>
-                  {!editingTags && (
-                    <Button size="mini" onClick={() => setEditingTags(true)}>
-                      编辑
-                    </Button>
-                  )}
+              {!editingTags && (
+                <Button 
+                  size="middle" 
+                  onClick={() => setEditingTags(true)}
+                  color="primary"
+                  style={{ fontSize: '14px', fontWeight: 600, color: 'white' }}
+                >
+                  编辑
+                </Button>
+              )}
                 </div>
                 {editingTags ? (
                   <div>
@@ -156,7 +163,14 @@ function ImageDetail() {
                         }}
                         style={{ flex: 1 }}
                       />
-                      <Button size="small" onClick={addTag}>添加</Button>
+                      <Button 
+                        size="middle" 
+                        onClick={addTag}
+                        color="primary"
+                        style={{ fontSize: '14px', fontWeight: 600, minWidth: '80px' }}
+                      >
+                        添加
+                      </Button>
                     </div>
                     <Space wrap style={{ marginBottom: 8 }}>
                       {tags.map((tag, idx) => (
@@ -165,16 +179,27 @@ function ImageDetail() {
                           color="primary"
                           closeable
                           onClose={() => removeTag(tag)}
+                          style={{ color: 'white' }}
                         >
                           {tag}
                         </Tag>
                       ))}
                     </Space>
                     <Space>
-                      <Button size="small" color="primary" onClick={handleSaveTags} loading={savingTags}>
+                      <Button 
+                        size="middle" 
+                        color="primary" 
+                        onClick={handleSaveTags} 
+                        loading={savingTags}
+                        style={{ fontSize: '14px', fontWeight: 600 }}
+                      >
                         保存
                       </Button>
-                      <Button size="small" onClick={handleCancelEditTags}>
+                      <Button 
+                        size="middle" 
+                        onClick={handleCancelEditTags}
+                        style={{ fontSize: '14px', fontWeight: 600 }}
+                      >
                         取消
                       </Button>
                     </Space>
@@ -183,7 +208,11 @@ function ImageDetail() {
                   <Space wrap>
                     {image.tags && image.tags.length > 0 ? (
                       image.tags.map((tag, idx) => (
-                        <Tag key={idx} color="primary">
+                        <Tag 
+                          key={idx} 
+                          color="primary"
+                          style={{ color: 'white' }}
+                        >
                           {tag}
                         </Tag>
                       ))

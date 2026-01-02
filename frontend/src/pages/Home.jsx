@@ -14,7 +14,7 @@ function Home() {
       <NavBar
         back={null}
         right={
-          <Button size="small" onClick={logout}>
+          <Button size="large" onClick={logout} style={{ fontSize: '16px', fontWeight: 600 }}>
             退出
           </Button>
         }

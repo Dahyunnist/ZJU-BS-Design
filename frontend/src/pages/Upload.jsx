@@ -119,12 +119,20 @@ function Upload() {
                 }
               }}
             />
-            <Button size="small" onClick={addTag}>添加</Button>
+            <Button 
+              size="middle" 
+              onClick={addTag}
+              color="primary"
+              style={{ fontSize: '14px', fontWeight: 600, minWidth: '80px' }}
+            >
+              添加
+            </Button>
           </div>
           <div className="tags-list">
             {tags.map((tag, index) => (
               <Tag
                 key={index}
+                color="primary"
                 closeable
                 onClose={() => removeTag(tag)}
                 style={{ marginRight: 8, marginTop: 8 }}

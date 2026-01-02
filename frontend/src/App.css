@@ -1,12 +1,105 @@
+/* 全局背景渐变 */
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  min-height: 100vh;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .app-container {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: transparent;
+}
+
+/* 全局按钮样式优化 */
+.adm-button {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.adm-button-small {
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  min-height: 40px !important;
+}
+
+.adm-button-middle {
+  padding: 12px 24px !important;
+  font-size: 15px !important;
+  min-height: 44px !important;
+}
+
+.adm-button-large {
+  padding: 16px 32px !important;
+  font-size: 18px !important;
+  min-height: 56px !important;
+  font-weight: 700 !important;
+}
+
+.adm-button-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.adm-button-primary:active {
+  transform: scale(0.98) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.adm-button-danger {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.adm-button-default {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  color: #333 !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.adm-button-default:active {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
+.adm-button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
 }
 
 /* 响应式布局 */
 @media (max-width: 768px) {
   .app-container {
     padding: 0;
+  }
+  
+  .adm-button-small {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    min-height: 36px !important;
+  }
+  
+  .adm-button-large {
+    padding: 14px 28px !important;
+    font-size: 16px !important;
+    min-height: 50px !important;
   }
 }
 
@@ -16,5 +109,91 @@
     margin: 0 auto;
     padding: 20px;
   }
+}
+
+/* 卡片样式优化 */
+.adm-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.adm-card-header {
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  color: #333 !important;
+}
+
+/* 标签样式优化 - 更醒目美观 */
+.adm-tag {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.adm-tag-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.adm-tag-primary,
+.adm-tag-primary *,
+.adm-tag-primary *::before,
+.adm-tag-primary *::after,
+.adm-tag-primary .adm-tag-text,
+.adm-tag-primary span,
+.adm-tag-primary > span,
+.adm-tag-primary > *,
+.adm-tag-primary .adm-tag-content,
+.adm-tag-primary .adm-tag-text-wrapper,
+.adm-tag-primary div,
+.adm-tag-primary p {
+  color: white !important;
+}
+
+.adm-tag-primary-fill-outline {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #667eea !important;
+  border: 2px solid #667eea !important;
+  backdrop-filter: blur(10px) !important;
+  font-weight: 700 !important;
+}
+
+.adm-tag:active {
+  transform: scale(0.95) !important;
+}
+
+/* NavBar 标题样式优化 - 更醒目 */
+.adm-nav-bar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 3px solid #667eea !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  padding: 12px 0 !important;
+}
+
+.adm-nav-bar-title {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #667eea !important;
+  padding: 8px 20px !important;
+  display: inline-block !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  text-shadow: none !important;
+}
+
+.adm-nav-bar-left,
+.adm-nav-bar-right {
+  padding: 0 16px !important;
 }
 

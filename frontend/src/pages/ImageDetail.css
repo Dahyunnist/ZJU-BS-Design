@@ -1,6 +1,6 @@
 .image-detail-container {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: transparent;
 }
 
 .image-detail-content {
@@ -72,6 +72,33 @@
 
 .image-info-item span {
   color: #666;
+}
+
+/* 图片详情页标签和按钮文字强制白色 */
+.image-detail-container .adm-tag-primary,
+.image-detail-container .adm-tag-primary *,
+.image-detail-container .adm-tag-primary span,
+.image-detail-container .adm-tag-primary .adm-tag-text,
+.image-detail-container .adm-tag-primary > span,
+.image-detail-container [class*="adm-tag-primary"],
+.image-detail-container [class*="adm-tag-primary"] *,
+.image-detail-container [class*="adm-tag-primary"] span {
+  color: white !important;
+}
+
+/* 更具体的选择器覆盖所有可能的标签内部元素 */
+.image-detail-container .adm-tag {
+  color: white !important;
+}
+
+.image-detail-container .adm-tag * {
+  color: white !important;
+}
+
+.image-detail-container .adm-button-primary,
+.image-detail-container .adm-button-primary *,
+.image-detail-container .adm-button-primary span {
+  color: white !important;
 }
 
 /* 移动端适配 */

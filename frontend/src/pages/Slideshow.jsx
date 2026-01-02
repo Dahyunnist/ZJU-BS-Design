@@ -63,7 +63,7 @@ function Slideshow() {
           showPlayButton={true}
           showFullscreenButton={true}
           showThumbnails={true}
-          autoPlay={false}
+          autoPlay={true}
           slideInterval={3000}
           slideDuration={450}
         />
