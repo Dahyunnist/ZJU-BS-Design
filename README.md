@@ -24,7 +24,7 @@
 
 4. **标签管理**
    - 自动从EXIF信息创建标签
-   - 支持自定义标签
+   - 支持自定义标签（可添加、编辑、删除）
    - AI自动标签（增强功能）
 
 5. **缩略图生成**
@@ -38,11 +38,14 @@
 7. **图片展示**
    - 图片库浏览
    - 图片详情查看
+   - 轮播展示（选择多张图片自动播放）
    - 响应式设计，适配移动端
 
 8. **图片管理**
+   - 图片编辑功能（裁剪、色调调整）
    - 图片删除功能
    - 图片信息查看
+   - 标签编辑功能
 
 9. **移动端适配**
    - 响应式设计
@@ -113,7 +116,7 @@ BS_design/
 └── README.md
 ```
 
-## 快速开始
+## 运行与测试
 
 ### 前置要求
 
@@ -128,196 +131,8 @@ BS_design/
 ```bash
 docker-compose up -d
 ```
+或运行`start.bat`脚本
 
 3. 访问应用
    - 前端：http://localhost:3000
    - 后端API：http://localhost:8080/api
-
-### 本地开发
-
-#### 后端
-
-1. 启动MySQL数据库
-```bash
-# 使用Docker启动MySQL
-docker run -d \
-  --name mysql \
-  -e MYSQL_ROOT_PASSWORD=password \
-  -e MYSQL_DATABASE=image_db \
-  -p 3306:3306 \
-  mysql:8.0
-```
-
-2. 执行数据库初始化脚本
-```bash
-mysql -u root -p image_db < database/init.sql
-```
-
-3. 配置`backend/src/main/resources/application.yml`中的数据库连接
-
-4. 启动后端
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-#### 前端
-
-1. 安装依赖
-```bash
-cd frontend
-npm install
-```
-
-2. 启动开发服务器
-```bash
-npm run dev
-```
-
-3. 访问 http://localhost:3000
-
-## API文档
-
-### 认证接口
-
-#### 用户注册
-```
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "username": "string",
-  "password": "string",
-  "email": "string"
-}
-```
-
-#### 用户登录
-```
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "username": "string",
-  "password": "string"
-}
-```
-
-### 图片接口
-
-#### 上传图片
-```
-POST /api/images/upload
-Authorization: Bearer {token}
-Content-Type: multipart/form-data
-
-file: 图片文件
-tags: 标签数组（可选）
-```
-
-#### 获取图片列表
-```
-GET /api/images?page=0&size=20
-Authorization: Bearer {token}
-```
-
-#### 获取图片详情
-```
-GET /api/images/{id}
-Authorization: Bearer {token}
-```
-
-#### 获取缩略图
-```
-GET /api/images/{id}/thumbnail?size=600
-Authorization: Bearer {token}
-```
-
-#### 搜索图片
-```
-GET /api/images/search?keyword=xxx&startDate=xxx&endDate=xxx&page=0&size=20
-Authorization: Bearer {token}
-```
-
-#### 删除图片
-```
-DELETE /api/images/{id}
-Authorization: Bearer {token}
-```
-
-### MCP接口（增强功能）
-
-#### 自然语言搜索
-```
-POST /api/mcp/search
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "query": "找出上周拍的风景照片"
-}
-```
-
-## 数据库设计
-
-### 表结构
-
-- `users`: 用户表
-- `images`: 图片表
-- `tags`: 标签表
-- `image_tags`: 图片标签关联表
-
-详细表结构见`database/init.sql`
-
-## 开发说明
-
-### 代码规范
-
-- 后端使用Java标准命名规范
-- 前端使用React函数组件和Hooks
-- API响应统一使用`ApiResponse`格式
-
-### 测试
-
-```bash
-# 后端测试
-cd backend
-mvn test
-
-# 前端测试（如果配置了）
-cd frontend
-npm test
-```
-
-## 部署
-
-### 生产环境部署
-
-1. 修改`docker-compose.yml`中的环境变量
-2. 构建并启动
-```bash
-docker-compose up -d --build
-```
-
-3. 查看日志
-```bash
-docker-compose logs -f
-```
-
-## 许可证
-
-本项目为课程作业项目。
-
-## 作者
-
-- 姓名：李禹衡
-- 学号：3230105685
-- 专业：计算机科学与技术
-
-## 更新日志
-
-### v1.0.0 (2025-11-21)
-- 初始版本
-- 实现基本功能
-- 实现增强功能（AI标签、MCP接口）
-

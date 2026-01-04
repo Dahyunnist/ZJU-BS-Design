@@ -177,11 +177,28 @@ function ImageDetail() {
                         <Tag
                           key={idx}
                           color="primary"
-                          closeable
-                          onClose={() => removeTag(tag)}
-                          style={{ color: 'white' }}
+                          style={{ color: 'white', position: 'relative', paddingRight: 24 }}
                         >
                           {tag}
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              removeTag(tag)
+                            }}
+                            style={{
+                              position: 'absolute',
+                              right: 0,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              cursor: 'pointer',
+                              fontSize: '16px',
+                              lineHeight: 1,
+                              padding: '0 4px',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            ×
+                          </span>
                         </Tag>
                       ))}
                     </Space>
