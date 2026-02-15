@@ -1,0 +1,35 @@
+commit 8da359ee68434a90d683f0853e536c17ab883ac3
+Author: Dahyunnist <3230105685@zju.edu.cn>
+Date:   Sun Jan 4 20:02:51 2026 +0800
+
+    增加了图片标签删除功能，完成了设计文档的撰写
+
+commit 8c571a896534df88c961da86f9230d2415951551
+Author: Dahyunnist <3230105685@zju.edu.cn>
+Date:   Fri Jan 2 13:08:19 2026 +0800
+
+    美化了网站界面
+
+commit 987a20bb282dde84be78b92a8c6a55fef57b0f41
+Author: Dahyunnist <3230105685@zju.edu.cn>
+Date:   Fri Jan 2 11:12:02 2026 +0800
+
+    调整了图片详情界面的布局，现在可以在详情界面看到完整图片，同时解决了手机端访问的问题
+
+commit c43082d5c4b0ba49420ad6a0da604089e2a89127
+Author: Dahyunnist <3230105685@zju.edu.cn>
+Date:   Mon Dec 29 22:51:02 2025 +0800
+
+    实现了图片的编辑功能（包括裁剪和色调调整）以及图片标签的添加功能，编辑后新建的图片也可以设置标签
+
+commit 5148c858f0536333e678adb39d9692d002082ef9
+Author: Dahyunnist <3230105685@zju.edu.cn>
+Date:   Tue Dec 23 22:35:39 2025 +0800
+
+    解决了图片详情界面无法正常显示图片的问题，但是还是不能显示等比略缩图
+
+commit 9eb428c835bb3ca650b7363e2523c0692180024c
+Author: Dahyunnist <3230105685@zju.edu.cn>
+Date:   Tue Dec 23 21:49:38 2025 +0800
+
+    新建了BS体系软件设计的期末大程仓库，初步实现了项目在docker上运行并创建网站，支持在pc端上传图片，但手机端使用还有问题
