@@ -62,8 +62,14 @@ jobs:
         run: docker compose build
       - name: Verify MinIO image and health
         env:
+          MYSQL_ROOT_PASSWORD: ci-root-password
+          MYSQL_USER: ci-user
+          MYSQL_PASSWORD: ci-database-password
+          JWT_SECRET: ci-jwt-secret-at-least-32-characters-long
+          RABBITMQ_PASSWORD: ci-rabbit-password
           MINIO_ACCESS_KEY: ci-minio-user
           MINIO_SECRET_KEY: ci-minio-password
+          GRAFANA_ADMIN_PASSWORD: ci-grafana-password
           MINIO_IMAGE: public.ecr.aws/y9w4h2u9/minio:RELEASE.2025-09-07T16-13-09Z
         run: |
           docker compose --profile minio up -d minio
