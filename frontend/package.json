@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ant-design/icons": "^5.2.6",
+    "@ant-design/icons": "^6.3.4",
     "antd-mobile": "^5.34.0",
     "axios": "^1.6.2",
     "react": "^18.2.0",
