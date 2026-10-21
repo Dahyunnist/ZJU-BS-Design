@@ -132,7 +132,7 @@
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>8.5.17</version>
+            <version>9.0.3</version>
         </dependency>
 
         <!-- Metadata Extractor for EXIF - 暂时移除，使用Java标准库 -->
