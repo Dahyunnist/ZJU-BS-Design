@@ -89,8 +89,8 @@ app:
   storage:
     orphan-scan-enabled: ${APP_ORPHAN_SCAN_ENABLED:true}
     orphan-min-age: ${ORPHAN_MIN_AGE:24h}
-    orphan-scan-initial-delay: 600000
-    orphan-scan-delay: 604800000
+    orphan-scan-initial-delay: ${ORPHAN_SCAN_INITIAL_DELAY:600000}
+    orphan-scan-delay: ${ORPHAN_SCAN_DELAY:604800000}
   queue:
     max-length: ${APP_QUEUE_MAX_LENGTH:10000}
   outbox:

@@ -1,6 +1,6 @@
 # Upgrade delivery status
 
-Updated: 2026-10-21
+Updated: 2026-10-22
 
 This file records implementation evidence and remaining limits for `升级方案.md`.
 
@@ -43,6 +43,9 @@ This file records implementation evidence and remaining limits for `升级方案
 - k6 ran at 10/50/100 VUs for offset and cursor paging, plus a 50-VU empty-search cache on/off pair, with 10,000 synthetic image rows. All cases had 0% HTTP errors. Results and limits are recorded in `docs/performance/k6-results-2026-10-21.md`; each case was one 15-second run without warmup or repetition.
 - Added `APP_CACHE_ENABLED` Compose setting and a `NoOpCacheManager` when disabled. Backend readiness passed with caching disabled and was restored to enabled afterward.
 - Final host `clean verify` passed 30 tests with zero failures, errors, or skips. It ran in Maven's JVM with a static Byte Buddy agent because Windows blocked dynamic self-attach and the machine temporarily lacked paging-file capacity for a forked test JVM.
+- MinIO end-to-end smoke test passed using the supplied ECR image: authenticated 1×1 PNG upload, independent Worker processing to `READY`, thumbnail HTTP 200, and anonymous share download HTTP 200 with exact SHA-256 byte match. Temporary test image, share, album, account, and object were removed.
+- MinIO orphan recovery passed with a dedicated app-shaped object that had no database row: scan logged `known=0 deleted=1` and removed the object. Compose now passes orphan age and scan timing settings into the API container; `ORPHAN_SCAN_INITIAL_DELAY` and `ORPHAN_SCAN_DELAY` can override the 10-minute initial delay and 7-day interval for controlled operations/tests.
+- API and Worker were restored to `STORAGE_PROVIDER=local`; both returned healthy. MinIO remains running in its optional profile.
 
 ## Remaining acceptance work
 
@@ -53,7 +56,7 @@ This file records implementation evidence and remaining limits for `升级方案
 - CI now independently pulls the selected MinIO image and checks its live health endpoint, verifying GitHub-hosted Docker can obtain the image.
 - Grafana dashboard, backup/restore drill, and deterministic frontend lockfile install are complete and locally verified.
 - Repeat heap measurements with large decoded images and concurrent uploads; the single padded-file upload sample is recorded above.
-- MinIO now uses the supplied ECR mirror, overridable through `MINIO_IMAGE`. Local image startup succeeded. Complete API upload, worker thumbnail, shared download, and orphan recovery after Docker Desktop API-pipe access is stable.
+- MinIO now uses the supplied ECR mirror, overridable through `MINIO_IMAGE`. Upload, Worker thumbnail generation, shared download, and MinIO orphan recovery all passed locally.
 - Repeat the k6 cache-on/off trials with warmup and multiple runs. The first paired run is recorded but is not sufficient for stable capacity claims.
 - Complete worker crash/ordering/failure replay matrix and identify the two messages remaining in the legacy DLQ. Redis, RabbitMQ outage recovery, worker restart, and stale duplicate delivery have runtime evidence now.
 
