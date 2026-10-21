@@ -133,7 +133,7 @@ docker compose up -d --build
 ```
 Windows 也可运行 `start.bat`。
 
-可选 MinIO：在 `.env` 设置 `STORAGE_PROVIDER=minio`、`MINIO_ACCESS_KEY`、`MINIO_SECRET_KEY`，再运行 `docker compose --profile minio up -d --build`。先启动 MinIO profile，再启动后端；首次运行需在 MinIO Console 创建 `.env` 中配置同名的 `MINIO_BUCKET` bucket，并给应用凭据授予该 bucket 的读取、写入、删除和列举权限。应用每周扫描本地或 MinIO 孤儿对象，仅删除超过 24 小时、符合应用对象键格式且数据库无引用的对象；可用 `ORPHAN_MIN_AGE` 调整宽限期。默认仍使用本地存储。
+可选 MinIO：在 `.env` 设置 `STORAGE_PROVIDER=minio`、`MINIO_ACCESS_KEY`、`MINIO_SECRET_KEY`，再运行 `docker compose --profile minio up -d --build`。Compose 默认使用 `public.ecr.aws/y9w4h2u9/minio:RELEASE.2025-09-07T16-13-09Z`；可用 `MINIO_IMAGE` 指向可访问的兼容镜像。该镜像由第三方维护，仅用于隔离开发测试环境。先启动 MinIO profile，再启动后端；首次运行需在 MinIO Console 创建 `.env` 中配置同名的 `MINIO_BUCKET` bucket，并给应用凭据授予该 bucket 的读取、写入、删除和列举权限。应用每周扫描本地或 MinIO 孤儿对象，仅删除超过 24 小时、符合应用对象键格式且数据库无引用的对象；可用 `ORPHAN_MIN_AGE` 调整宽限期。默认仍使用本地存储。
 
 可选监控：在 `.env` 设置 `GRAFANA_ADMIN_PASSWORD`，运行 `docker compose --profile monitoring up -d`。Grafana 地址为 `http://localhost:3001`，Prometheus 默认地址为 `http://localhost:9091`（可用 `PROMETHEUS_PORT` 改端口）；两者只绑定本机回环。账号为 `admin`，密码取自 `.env`。
 
@@ -163,5 +163,7 @@ Windows 也可运行 `start.bat`。
 - Compose 默认启用 Redis 缓存；设置 `APP_CACHE_ENABLED=false` 并重建后端即可关闭缓存。k6 样本及限制见 `docs/performance/k6-results-2026-10-21.md`。
 
 开发检查：`mvn -B -f backend/pom.xml verify` 和 `npm --prefix frontend ci && npm --prefix frontend run build`。Node.js 需 22+；`package-lock.json` 锁定前端依赖。数据库迁移由 `backend/src/main/resources/db/migration` 管理；不要用 `docker compose down -v`，它会删除数据库数据卷。
+
+GitHub Actions 会运行后端测试、前端审计与构建、容器构建，并独立拉取 MinIO 镜像检查健康端点。仓库需在 **Settings → Secrets and variables → Actions** 配置 `NVD_API_KEY`，CI 才会运行 OWASP Java 依赖扫描；密钥只放 GitHub Secret，不要提交到仓库。
 
 升级验收状态和未完成项见 `升级实施记录.md` 与 `docs/architecture/upgrade-status.md`。

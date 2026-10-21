@@ -49,11 +49,11 @@ This file records implementation evidence and remaining limits for `升级方案
 - Organization `ADMIN`, `MEMBER`, and outsider ACL matrix now has MySQL Testcontainers coverage. Shared original-file streaming also passes through MockMvc and MySQL Testcontainers.
 - Extend Testcontainers coverage to Redis, RabbitMQ, and S3-compatible storage; MySQL ACL integration coverage now runs and passes.
 - A host-side authenticated HTTP sample records p95, throughput, and error rate at 10/50/100 workers on 10,000 synthetic rows. A k6 sample now also exists; both have one 15-second run per case without warmup. Repeat multiple trials before drawing capacity or comparative conclusions.
-- The first push triggered GitHub Actions. Backend dependency scan failed because `NVD_API_KEY` was unset (`Invalid API Key, length of 0`); later workflow steps did not run. Workflow now reports a warning and skips only that scan when the secret is absent. Confirm the rerun after push. Add the key as a repository Actions secret to enable OWASP scanning.
+- GitHub Actions for commit `9b2d152` completed successfully: backend tests, frontend install/audit/build, and Docker image builds passed. OWASP Dependency-Check was skipped because `NVD_API_KEY` was not configured at that time; the user has now added the secret. The next pushed run will exercise the scan.
+- CI now independently pulls the selected MinIO image and checks its live health endpoint, verifying GitHub-hosted Docker can obtain the image.
 - Grafana dashboard, backup/restore drill, and deterministic frontend lockfile install are complete and locally verified.
 - Repeat heap measurements with large decoded images and concurrent uploads; the single padded-file upload sample is recorded above.
-- Validate MinIO adapter against a running MinIO server and complete object-store upload, processing, and shared download. Quay returned 401 Unauthorized; Docker Hub retrieval through the configured mirror ended with EOF. The normal Compose profile uses local storage.
-- Validate MinIO end to end and run orphan recovery against object storage. The configured Docker Hub mirror still returns EOF while pulling the MinIO image.
+- MinIO now uses the supplied ECR mirror, overridable through `MINIO_IMAGE`. Local image startup succeeded. Complete API upload, worker thumbnail, shared download, and orphan recovery after Docker Desktop API-pipe access is stable.
 - Repeat the k6 cache-on/off trials with warmup and multiple runs. The first paired run is recorded but is not sufficient for stable capacity claims.
 - Complete worker crash/ordering/failure replay matrix and identify the two messages remaining in the legacy DLQ. Redis, RabbitMQ outage recovery, worker restart, and stale duplicate delivery have runtime evidence now.
 

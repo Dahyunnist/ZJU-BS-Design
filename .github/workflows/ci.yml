@@ -60,3 +60,21 @@ jobs:
           MINIO_SECRET_KEY: ci-minio-password
           GRAFANA_ADMIN_PASSWORD: ci-grafana-password
         run: docker compose build
+      - name: Verify MinIO image and health
+        env:
+          MINIO_ACCESS_KEY: ci-minio-user
+          MINIO_SECRET_KEY: ci-minio-password
+          MINIO_IMAGE: public.ecr.aws/y9w4h2u9/minio:RELEASE.2025-09-07T16-13-09Z
+        run: |
+          docker compose --profile minio up -d minio
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:9000/minio/health/live; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --profile minio logs minio
+          exit 1
+      - name: Stop MinIO
+        if: always()
+        run: docker compose --profile minio down
