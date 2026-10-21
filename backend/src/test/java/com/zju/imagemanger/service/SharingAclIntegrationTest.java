@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
         "spring.cache.type=none",
+        "app.cache.enabled=false",
         "spring.rabbitmq.listener.simple.auto-startup=false",
         "app.worker.enabled=false",
         "app.outbox.publisher-enabled=false",
@@ -112,6 +113,67 @@ class SharingAclIntegrationTest {
                 () -> sharing.createShare(albumId, outsiderId, 1));
         assertThrows(org.springframework.web.server.ResponseStatusException.class,
                 () -> sharing.addImage(albumId, imageId, outsiderId));
+    }
+
+    @Test
+    void organizationAdminMemberAndOutsiderFollowRoleMatrix() {
+        User member = createUser("acl-member");
+        User secondAdmin = createUser("acl-second-admin");
+        sharing.addMember(organizationId, ownerId, member.getUsername(), "MEMBER");
+        sharing.addMember(organizationId, ownerId, secondAdmin.getUsername(), "ADMIN");
+        Long organizationAlbumId = sharing.createAlbum("Organization album", organizationId, ownerId).id();
+
+        assertEquals(organizationAlbumId, sharing.getAlbum(organizationAlbumId, member.getId()).id());
+        assertEquals("MEMBER", sharing.listOrganizations(member.getId()).stream()
+                .filter(org -> org.id().equals(organizationId)).findFirst().orElseThrow().role());
+        assertEquals("ADMIN", sharing.listOrganizations(secondAdmin.getId()).stream()
+                .filter(org -> org.id().equals(organizationId)).findFirst().orElseThrow().role());
+
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> sharing.addMember(organizationId, member.getId(), "acl-outsider", "MEMBER"));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> sharing.organizationAudit(organizationId, member.getId()));
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> sharing.getAlbum(organizationAlbumId, outsiderId));
+
+        Image memberImage = new Image();
+        memberImage.setUserId(member.getId());
+        memberImage.setFilename("member.png");
+        memberImage.setFilePath("/tmp/member.png");
+        memberImage.setObjectKey("acl-test/member.png");
+        memberImage.setSha256("b".repeat(64));
+        memberImage.setStatus("READY");
+        memberImage.setFileSize(1L);
+        memberImage.setMimeType("image/png");
+        memberImage.setWidth(1);
+        memberImage.setHeight(1);
+        memberImage.setExifData(Map.of());
+        memberImage.setAiTags(Map.of());
+        Long memberImageId = images.saveAndFlush(memberImage).getId();
+        try {
+            sharing.addImage(organizationAlbumId, memberImageId, member.getId());
+            assertTrue(sharing.getAlbum(organizationAlbumId, secondAdmin.getId()).images().stream()
+                    .anyMatch(image -> image.id().equals(memberImageId)));
+            assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                    () -> sharing.removeImage(organizationAlbumId, memberImageId, member.getId()));
+            assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                    () -> sharing.createShare(organizationAlbumId, member.getId(), 1));
+
+            SharingService.ShareView share = sharing.createShare(organizationAlbumId, secondAdmin.getId(), 1);
+            sharing.revokeShare(share.id(), ownerId);
+            assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                    () -> sharing.getSharedAlbum(share.token()));
+            assertFalse(sharing.organizationAudit(organizationId, secondAdmin.getId()).isEmpty());
+
+            sharing.removeMember(organizationId, ownerId, member.getId());
+            assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                    () -> sharing.getAlbum(organizationAlbumId, member.getId()));
+            assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                    () -> sharing.removeMember(organizationId, secondAdmin.getId(), secondAdmin.getId()));
+        } finally {
+            jdbc.update("DELETE FROM album_images WHERE image_id=?", memberImageId);
+            jdbc.update("DELETE FROM images WHERE id=?", memberImageId);
+        }
     }
 
     @Test

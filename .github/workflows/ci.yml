@@ -22,10 +22,24 @@ jobs:
           node-version: '22'
       - name: Test and package backend
         run: mvn -B -f backend/pom.xml verify
+      - name: Check NVD API key
+        id: nvd-key
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          if [[ -n "$NVD_API_KEY" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Scan backend dependencies
+        if: steps.nvd-key.outputs.available == 'true'
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: mvn -B -f backend/pom.xml org.owasp:dependency-check-maven:12.2.2:check -Dnvd.api.key="$NVD_API_KEY" -DfailBuildOnCVSS=7
+      - name: Skip backend dependency scan without NVD API key
+        if: steps.nvd-key.outputs.available != 'true'
+        run: echo "::warning::Backend dependency scan skipped. Add NVD_API_KEY as a repository Actions secret to enable it."
       - name: Install locked frontend dependencies
         working-directory: frontend
         run: npm ci --no-audit --no-fund

@@ -11,11 +11,14 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.annotation.EnableCaching;
 
 import java.time.Duration;
 import java.util.Map;
 
 @Configuration
+@EnableCaching
 public class CacheConfiguration implements CachingConfigurer {
     private static final Logger logger = LoggerFactory.getLogger(CacheConfiguration.class);
 
@@ -43,7 +46,9 @@ public class CacheConfiguration implements CachingConfigurer {
             }
         };
     }
+
     @Bean
+    @ConditionalOnProperty(prefix = "app.cache", name = "enabled", havingValue = "true", matchIfMissing = true)
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration base = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(1))
@@ -54,6 +59,12 @@ public class CacheConfiguration implements CachingConfigurer {
                         "emptySearches", base.entryTtl(Duration.ofSeconds(15)),
                         "userImagePages", base.entryTtl(Duration.ofSeconds(30))))
                 .build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.cache", name = "enabled", havingValue = "false")
+    public CacheManager noOpCacheManager() {
+        return new org.springframework.cache.support.NoOpCacheManager();
     }
 }
 

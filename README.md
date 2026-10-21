@@ -159,7 +159,8 @@ Windows 也可运行 `start.bat`。
 - Compose 启动 API、独立 Worker、前端、MySQL、Redis 与 RabbitMQ；Worker 无宿主端口。仅前端、API 和 MySQL 发布到本机回环。
 - API 容器负责 HTTP 与 Outbox 发布；Worker 容器只消费 RabbitMQ 并生成缩略图。二者共享上传目录、缩略图目录和配置，可分别扩容。
 - 上传、详情、列表 API 均要求登录。列表支持 `/api/images/cursor?size=20` 游标分页。
-- k6 压测脚本位于 `docs/performance/k6.js`。运行前配置 `BASE_URL`、`AUTH_TOKEN`，结果必须连同机器与数据规模记录；仓库不声明未实测的性能提升。
+- k6 压测脚本位于 `docs/performance/k6.js`。运行前配置 `BASE_URL`、专用测试账号 `K6_USERNAME`、`K6_PASSWORD`；脚本在 k6 内登录获取短期 JWT，不需要从外部传入 JWT。结果必须连同机器与数据规模记录；仓库不声明未实测的性能提升。
+- Compose 默认启用 Redis 缓存；设置 `APP_CACHE_ENABLED=false` 并重建后端即可关闭缓存。k6 样本及限制见 `docs/performance/k6-results-2026-10-21.md`。
 
 开发检查：`mvn -B -f backend/pom.xml verify` 和 `npm --prefix frontend ci && npm --prefix frontend run build`。Node.js 需 22+；`package-lock.json` 锁定前端依赖。数据库迁移由 `backend/src/main/resources/db/migration` 管理；不要用 `docker compose down -v`，它会删除数据库数据卷。
 

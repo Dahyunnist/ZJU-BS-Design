@@ -22,7 +22,7 @@ This file records implementation evidence and remaining limits for `升级方案
 
 ## Evidence
 
-- Host `mvn -B -f backend/pom.xml clean verify` succeeded on 2026-10-21: 29 tests, including MySQL Testcontainers ACL and anonymous original-file share download integration tests, orphan-reaper test, and Rabbit JSON converter test, with zero failures, errors, or skips. A clean Testcontainers database applied Flyway V1-V5 and passed Hibernate validation. Backend and frontend container builds succeeded; Nginx config passed `nginx -t` during the frontend image build.
+- Host `mvn -B -f backend/pom.xml clean verify` succeeded on 2026-10-21: 30 tests, including MySQL Testcontainers ACL, shared original-file download, organization role matrix, orphan-reaper, and Rabbit JSON converter tests, with zero failures, errors, or skips. A clean Testcontainers database applied Flyway V1-V5 and passed Hibernate validation. Backend and frontend container builds succeeded; Nginx config passed `nginx -t` during the frontend image build.
 - Latest frontend Docker build used the committed npm lockfile, ran `npm audit --audit-level=high` with 0 vulnerabilities, and completed Vite production build. Latest backend Docker `mvn verify` succeeded.
 - Compose stack was previously healthy with MySQL, Redis, RabbitMQ, backend, and frontend. Readiness returned UP; anonymous image API returned 401.
 - Runtime fault checks recorded Redis fail-open and RabbitMQ outbox recovery in `升级实施记录.md`.
@@ -39,18 +39,22 @@ This file records implementation evidence and remaining limits for `升级方案
 - Four concurrent 4800×4000 (19.2 MP) JPEG uploads all reached READY. Each file was about 301 KB. Docker stats sampled about 832 MiB for API and 431 MiB for Worker at peak, at roughly 300 ms intervals; these are container memory samples, not exact JVM heap peaks.
 - Monitoring host port now defaults to loopback port 9091, configurable through `PROMETHEUS_PORT`, after discovering port 9090 was occupied by another local service. Prometheus readiness returned 200 and the API scrape target was `up`; Grafana health was 200 and its dashboard was queryable.
 - Anonymous share download integration test streams original image bytes through the configured security filter chain: HTTP 200, `image/png`, and exact byte match.
+- Added MySQL Testcontainers coverage for organization `ADMIN`, `MEMBER`, and outsider permissions, including member management, album read/write, share revoke, audit access, and member removal restrictions.
+- k6 ran at 10/50/100 VUs for offset and cursor paging, plus a 50-VU empty-search cache on/off pair, with 10,000 synthetic image rows. All cases had 0% HTTP errors. Results and limits are recorded in `docs/performance/k6-results-2026-10-21.md`; each case was one 15-second run without warmup or repetition.
+- Added `APP_CACHE_ENABLED` Compose setting and a `NoOpCacheManager` when disabled. Backend readiness passed with caching disabled and was restored to enabled afterward.
+- Final host `clean verify` passed 30 tests with zero failures, errors, or skips. It ran in Maven's JVM with a static Byte Buddy agent because Windows blocked dynamic self-attach and the machine temporarily lacked paging-file capacity for a forked test JVM.
 
 ## Remaining acceptance work
 
-- Expand automated ACL integration coverage to the full organization role matrix. Shared original-file streaming now passes through MockMvc and MySQL Testcontainers.
+- Organization `ADMIN`, `MEMBER`, and outsider ACL matrix now has MySQL Testcontainers coverage. Shared original-file streaming also passes through MockMvc and MySQL Testcontainers.
 - Extend Testcontainers coverage to Redis, RabbitMQ, and S3-compatible storage; MySQL ACL integration coverage now runs and passes.
-- A host-side authenticated HTTP sample now records p95, throughput, and error rate at 10/50/100 workers on 10,000 synthetic rows. It was one 15-second run per case without warmup; repeat with k6, cache on/off, and multiple trials before drawing capacity or comparative conclusions.
-- Run the configured GitHub Actions workflow and OWASP Java Dependency-Check. MySQL Testcontainers coverage passes locally. Frontend npm audit passed with 0 vulnerabilities in Docker build. GitHub Actions has not run because changes have not been pushed; Java dependency scan needs an NVD API key.
-- GitHub Actions has not run these edits. Grafana dashboard, backup/restore drill, and deterministic frontend lockfile install are complete and locally verified.
+- A host-side authenticated HTTP sample records p95, throughput, and error rate at 10/50/100 workers on 10,000 synthetic rows. A k6 sample now also exists; both have one 15-second run per case without warmup. Repeat multiple trials before drawing capacity or comparative conclusions.
+- The first push triggered GitHub Actions. Backend dependency scan failed because `NVD_API_KEY` was unset (`Invalid API Key, length of 0`); later workflow steps did not run. Workflow now reports a warning and skips only that scan when the secret is absent. Confirm the rerun after push. Add the key as a repository Actions secret to enable OWASP scanning.
+- Grafana dashboard, backup/restore drill, and deterministic frontend lockfile install are complete and locally verified.
 - Repeat heap measurements with large decoded images and concurrent uploads; the single padded-file upload sample is recorded above.
 - Validate MinIO adapter against a running MinIO server and complete object-store upload, processing, and shared download. Quay returned 401 Unauthorized; Docker Hub retrieval through the configured mirror ended with EOF. The normal Compose profile uses local storage.
 - Validate MinIO end to end and run orphan recovery against object storage. The configured Docker Hub mirror still returns EOF while pulling the MinIO image.
-- Run k6 and repeated cache-on/off trials. k6 was not run because automatic review rejected passing a JWT to its container; the single host HTTP sample remains insufficient for capacity claims.
+- Repeat the k6 cache-on/off trials with warmup and multiple runs. The first paired run is recorded but is not sufficient for stable capacity claims.
 - Complete worker crash/ordering/failure replay matrix and identify the two messages remaining in the legacy DLQ. Redis, RabbitMQ outage recovery, worker restart, and stale duplicate delivery have runtime evidence now.
 
 The project is not fully accepted against every item in `升级方案.md` until remaining work above is closed or explicitly deferred with user agreement.

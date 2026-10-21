@@ -1,0 +1,85 @@
+=== empty-search, cache off, 50 VUs, 15s ===
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: /scripts/k6.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 50 max VUs, 45s max duration (incl. graceful stop):
+              * gallery: 50 looping VUs for 15s (gracefulStop: 30s)
+
+
+running (01.0s), 50/50 VUs, 245 complete and 0 interrupted iterations
+gallery   [   5% ] 50 VUs  00.7s/15s
+
+running (02.0s), 50/50 VUs, 654 complete and 0 interrupted iterations
+gallery   [  11% ] 50 VUs  01.7s/15s
+
+running (03.9s), 50/50 VUs, 1083 complete and 0 interrupted iterations
+gallery   [  18% ] 50 VUs  02.7s/15s
+
+running (04.9s), 50/50 VUs, 1523 complete and 0 interrupted iterations
+gallery   [  25% ] 50 VUs  03.7s/15s
+
+running (05.9s), 50/50 VUs, 1963 complete and 0 interrupted iterations
+gallery   [  31% ] 50 VUs  04.7s/15s
+
+running (06.9s), 50/50 VUs, 2407 complete and 0 interrupted iterations
+gallery   [  38% ] 50 VUs  05.7s/15s
+
+running (07.9s), 50/50 VUs, 2820 complete and 0 interrupted iterations
+gallery   [  45% ] 50 VUs  06.7s/15s
+
+running (08.9s), 50/50 VUs, 3259 complete and 0 interrupted iterations
+gallery   [  51% ] 50 VUs  07.7s/15s
+
+running (09.9s), 50/50 VUs, 3712 complete and 0 interrupted iterations
+gallery   [  58% ] 50 VUs  08.7s/15s
+
+running (10.9s), 50/50 VUs, 4167 complete and 0 interrupted iterations
+gallery   [  65% ] 50 VUs  09.7s/15s
+
+running (11.9s), 50/50 VUs, 4635 complete and 0 interrupted iterations
+gallery   [  71% ] 50 VUs  10.7s/15s
+
+running (12.9s), 50/50 VUs, 5084 complete and 0 interrupted iterations
+gallery   [  78% ] 50 VUs  11.7s/15s
+
+running (13.9s), 50/50 VUs, 5529 complete and 0 interrupted iterations
+gallery   [  85% ] 50 VUs  12.7s/15s
+
+running (14.9s), 50/50 VUs, 5974 complete and 0 interrupted iterations
+gallery   [  91% ] 50 VUs  13.7s/15s
+
+running (15.9s), 50/50 VUs, 6400 complete and 0 interrupted iterations
+gallery   [  98% ] 50 VUs  14.7s/15s
+
+     ✓ gallery responds 200
+     ✓ gallery returns JSON
+
+     checks.........................: 100.00% 13158 out of 13158
+     data_received..................: 4.8 MB  296 kB/s
+     data_sent......................: 2.1 MB  128 kB/s
+     http_req_blocked...............: avg=15.05µs min=901ns   med=3.34µs   max=3.22ms   p(90)=5.46µs   p(95)=6.55µs  
+     http_req_connecting............: avg=9.41µs  min=0s      med=0s       max=3.12ms   p(90)=0s       p(95)=0s      
+   ✓ http_req_duration..............: avg=120.8ms min=19.08ms med=112.75ms max=618.48ms p(90)=147.8ms  p(95)=164.99ms
+       { expected_response:true }...: avg=120.8ms min=19.08ms med=112.75ms max=618.48ms p(90)=147.8ms  p(95)=164.99ms
+   ✓ http_req_failed................: 0.00%   0 out of 6580
+     http_req_receiving.............: avg=86.49µs min=13.44µs med=81.15µs  max=2.8ms    p(90)=134.97µs p(95)=151.27µs
+     http_req_sending...............: avg=17.51µs min=3.24µs  med=10.69µs  max=3.08ms   p(90)=37.92µs  p(95)=43.65µs 
+     http_req_tls_handshaking.......: avg=0s      min=0s      med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=120.7ms min=18.95ms med=112.65ms max=618.43ms p(90)=147.72ms p(95)=164.93ms
+     http_reqs......................: 6580    405.11994/s
+     iteration_duration.............: avg=114.4ms min=19.18ms med=112.73ms max=262.51ms p(90)=141.09ms p(95)=158.65ms
+     iterations.....................: 6579    405.058372/s
+     vus............................: 50      min=50             max=50
+     vus_max........................: 50      min=50             max=50
+
+
+running (16.2s), 00/50 VUs, 6579 complete and 0 interrupted iterations
+gallery ✓ [ 100% ] 50 VUs  15s
