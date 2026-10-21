@@ -21,25 +21,27 @@ public class ExifExtractor {
         Map<String, Object> exifData = new HashMap<>();
         
         try {
-            // 使用Java标准库提取图片尺寸
-            BufferedImage img = ImageIO.read(imageFile);
-            if (img != null) {
-                exifData.put("width", img.getWidth());
-                exifData.put("height", img.getHeight());
-            }
-            
-            // 尝试提取EXIF信息（使用ImageIO）
             try (ImageInputStream iis = ImageIO.createImageInputStream(imageFile)) {
                 Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-                if (readers.hasNext()) {
-                    ImageReader reader = readers.next();
-                    reader.setInput(iis);
-                    IIOMetadata metadata = reader.getImageMetadata(0);
-                    
-                    // 标记有元数据
-                    if (metadata != null) {
-                        exifData.put("hasMetadata", true);
+                if (!readers.hasNext()) {
+                    return exifData;
+                }
+                ImageReader reader = readers.next();
+                try {
+                    reader.setInput(iis, true, true);
+                    int width = reader.getWidth(0);
+                    int height = reader.getHeight(0);
+                    if (width <= 0 || height <= 0 || (long) width * height > 20_000_000L) {
+                        return exifData;
                     }
+                    BufferedImage img = reader.read(0);
+                    if (img == null) return exifData;
+                    exifData.put("width", width);
+                    exifData.put("height", height);
+                    IIOMetadata metadata = reader.getImageMetadata(0);
+                    if (metadata != null) exifData.put("hasMetadata", true);
+                } finally {
+                    reader.dispose();
                 }
             }
             

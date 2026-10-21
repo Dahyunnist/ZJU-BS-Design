@@ -1,10 +1,9 @@
-FROM node:18-alpine AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# 复制package文件
-COPY package.json package-lock.json* ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund && npm audit --audit-level=high
 
 # 复制源代码并构建
 COPY . .
@@ -15,6 +14,7 @@ FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN nginx -t
 
 EXPOSE 3000
 

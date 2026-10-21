@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { NavBar, Grid, Image, InfiniteScroll, SearchBar, Toast, Space, Tag, Button, Checkbox } from 'antd-mobile'
+import { NavBar, Grid, InfiniteScroll, SearchBar, Toast, Space, Tag, Button, Checkbox } from 'antd-mobile'
 import api from '../utils/api'
+import AuthenticatedImage from '../components/AuthenticatedImage'
 import './Gallery.css'
 
 function Gallery() {
@@ -187,12 +188,10 @@ function Gallery() {
                     style={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}
                   />
                 )}
-                <Image
+                <AuthenticatedImage
                   src={`/api/images/${image.id}/thumbnail?size=600`}
                   alt={image.filename}
-                  fit="contain"
                   style={{ width: '100%', height: 220, objectFit: 'contain', background: '#f7f7f7' }}
-                  lazy
                 />
                 <div className="image-info">
                   <p className="image-filename">{image.filename}</p>

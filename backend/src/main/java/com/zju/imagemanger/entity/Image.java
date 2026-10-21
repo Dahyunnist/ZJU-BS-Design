@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Entity
-@Table(name = "images")
+@Table(name = "images", uniqueConstraints = @UniqueConstraint(name = "uk_images_user_sha256", columnNames = {"user_id", "sha256"}),
+        indexes = @Index(name = "idx_images_owner_time_id", columnList = "user_id, upload_time, id"))
 @Data
-public class Image {
+public class Image implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,8 +24,20 @@ public class Image {
     @Column(nullable = false, length = 255)
     private String filename;
 
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     private String filePath;
+
+    @Column(name = "object_key", length = 500)
+    private String objectKey;
+
+    @Column(length = 64)
+    private String sha256;
+
+    @Column(length = 20)
+    private String status;
+
+    @Version
+    private Long version = 0L;
 
     @Column(nullable = false)
     private Long fileSize;

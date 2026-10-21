@@ -3,35 +3,104 @@ spring:
     name: image-manager
   
   datasource:
-    url: jdbc:mysql://localhost:3306/image_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: password
+    url: jdbc:mysql://localhost:3306/image_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:imageuser}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
   
   servlet:
     multipart:
       enabled: true
-      max-file-size: 20MB
-      max-request-size: 20MB
+      max-file-size: ${MAX_UPLOAD_SIZE:100MB}
+      max-request-size: ${MAX_UPLOAD_REQUEST_SIZE:105MB}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60s
+      cache-null-values: false
+  data:
+    redis:
+      connect-timeout: 1s
+      timeout: 2s
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 1
+  rabbitmq:
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 4
+        prefetch: 1
+        retry:
+          enabled: true
+          max-attempts: 4
+          initial-interval: 1s
+          multiplier: 2
+          max-interval: 10s
+        default-requeue-rejected: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: image-manager
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+app:
+  storage:
+    orphan-scan-enabled: ${APP_ORPHAN_SCAN_ENABLED:true}
+    orphan-min-age: ${ORPHAN_MIN_AGE:24h}
+    orphan-scan-initial-delay: 600000
+    orphan-scan-delay: 604800000
+  queue:
+    max-length: ${APP_QUEUE_MAX_LENGTH:10000}
+  outbox:
+    publisher-enabled: ${APP_OUTBOX_PUBLISHER_ENABLED:true}
+    poll-ms: 1000
+  worker:
+    enabled: ${APP_WORKER_ENABLED:true}
+  upload:
+    max-per-minute: ${UPLOAD_MAX_PER_MINUTE:20}
 
 # JWT配置
 jwt:
-  secret: image-manager-secret-key-2025-very-long-secret-key-for-jwt-token-generation
+  secret: ${JWT_SECRET}
   expiration: 86400000 # 24小时
 
 # 文件上传配置
 file:
   upload-dir: ./uploads
   thumbnail-dir: ./thumbnails
+
+storage:
+  provider: ${STORAGE_PROVIDER:local}
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    bucket: ${MINIO_BUCKET:images}
 
 # 服务器配置
 server:

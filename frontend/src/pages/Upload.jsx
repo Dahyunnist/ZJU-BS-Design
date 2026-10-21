@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { NavBar, Button, Toast, Input, Tag } from 'antd-mobile'
 import { useAuth } from '../context/AuthContext'
@@ -14,6 +14,10 @@ function Upload() {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState(null)
 
+  useEffect(() => () => {
+    if (preview) URL.revokeObjectURL(preview)
+  }, [preview])
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
     if (selectedFile) {
@@ -21,16 +25,12 @@ function Upload() {
         Toast.show({ icon: 'fail', content: '请选择图片文件' })
         return
       }
-      if (selectedFile.size > 20 * 1024 * 1024) {
-        Toast.show({ icon: 'fail', content: '文件大小不能超过20MB' })
+      if (selectedFile.size > 100 * 1024 * 1024) {
+        Toast.show({ icon: 'fail', content: '文件大小不能超过100MB' })
         return
       }
       setFile(selectedFile)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreview(reader.result)
-      }
-      reader.readAsDataURL(selectedFile)
+      setPreview(URL.createObjectURL(selectedFile))
     }
   }
 
@@ -88,7 +88,7 @@ function Upload() {
           <div className="file-upload-area">
             <input
               type="file"
-              accept="image/*"
+              accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"
               onChange={handleFileChange}
               id="file-input"
               style={{ display: 'none' }}
@@ -99,7 +99,7 @@ function Upload() {
               ) : (
                 <div className="upload-placeholder">
                   <p>点击选择图片</p>
-                  <p className="upload-hint">支持 JPG、PNG、GIF 等格式，最大 20MB</p>
+                  <p className="upload-hint">支持 JPG、PNG、GIF，最大 100MB</p>
                 </div>
               )}
             </label>

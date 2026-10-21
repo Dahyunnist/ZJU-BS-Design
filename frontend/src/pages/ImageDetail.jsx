@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { NavBar, Button, Toast, Tag, Card, Space, Input } from 'antd-mobile'
 import { DeleteOutline, EditSOutline } from 'antd-mobile-icons'
 import api from '../utils/api'
+import AuthenticatedImage from '../components/AuthenticatedImage'
 import './ImageDetail.css'
 
 function ImageDetail() {
@@ -272,7 +273,7 @@ function ImageDetail() {
           <div className="image-display-section">
             <Card>
               <div className="image-wrapper">
-                <img
+                <AuthenticatedImage
                   src={`/api/images/${id}/file`}
                   alt={image.filename}
                   className="detail-image-content"

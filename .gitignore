@@ -42,6 +42,7 @@ thumbnails/
 # Database
 *.db
 *.sqlite
+/backups/
 
 # Logs
 logs/

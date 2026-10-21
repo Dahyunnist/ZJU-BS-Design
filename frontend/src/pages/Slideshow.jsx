@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { NavBar, Button, Toast } from 'antd-mobile'
 import ImageGallery from 'react-image-gallery'
 import 'react-image-gallery/styles/css/image-gallery.css'
-import api from '../utils/api'
+import api, { fetchAuthenticatedImage } from '../utils/api'
 import './Slideshow.css'
 
 function Slideshow() {
@@ -21,28 +21,40 @@ function Slideshow() {
       return
     }
 
-    loadImages(ids.split(',').map(id => parseInt(id.trim())))
+    let active = true
+    const objectUrls = []
+    loadImages(ids.split(',').map(id => parseInt(id.trim())), objectUrls, () => active)
+    return () => {
+      active = false
+      objectUrls.forEach(url => URL.revokeObjectURL(url))
+    }
   }, [searchParams])
 
-  const loadImages = async (imageIds) => {
+  const loadImages = async (imageIds, objectUrls, isActive) => {
     try {
       const imagePromises = imageIds.map(id => 
         api.get(`/images/${id}`).then(res => res.data.data)
       )
       const loadedImages = await Promise.all(imagePromises)
-      setImages(loadedImages)
-      
-      const items = loadedImages.map(img => ({
-        original: `/api/images/${img.id}/file`,
-        thumbnail: `/api/images/${img.id}/thumbnail?size=300`,
-        description: img.filename
+      const items = await Promise.all(loadedImages.map(async img => {
+        const [original, thumbnail] = await Promise.all([
+          fetchAuthenticatedImage(`/api/images/${img.id}/file`),
+          fetchAuthenticatedImage(`/api/images/${img.id}/thumbnail?size=300`)
+        ])
+        objectUrls.push(original, thumbnail)
+        return { original, thumbnail, description: img.filename }
       }))
+      if (!isActive()) {
+        objectUrls.forEach(url => URL.revokeObjectURL(url))
+        return
+      }
+      setImages(loadedImages)
       setGalleryItems(items)
     } catch (error) {
       Toast.show({ icon: 'fail', content: '加载图片失败' })
       navigate(-1)
     } finally {
-      setLoading(false)
+      if (isActive()) setLoading(false)
     }
   }
 

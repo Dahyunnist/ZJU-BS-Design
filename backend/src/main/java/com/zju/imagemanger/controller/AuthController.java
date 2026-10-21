@@ -17,6 +17,9 @@ public class AuthController {
     @PostMapping("/register")
     public ApiResponse<AuthResponse> register(@Valid @RequestBody AuthRequest request) {
         try {
+            if (request.getEmail() == null || request.getEmail().isBlank()) {
+                return ApiResponse.error("邮箱不能为空");
+            }
             AuthResponse response = userService.register(request);
             return ApiResponse.success("注册成功", response);
         } catch (IllegalArgumentException e) {

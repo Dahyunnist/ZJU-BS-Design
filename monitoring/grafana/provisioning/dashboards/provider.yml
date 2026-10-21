@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: Image Manager
+    folder: Image Manager
+    type: file
+    disableDeletion: true
+    editable: false
+    options:
+      path: /var/lib/grafana/dashboards

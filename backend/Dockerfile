@@ -1,27 +1,15 @@
+# Multi-stage build to keep runtime image small.
 FROM maven:3.9-eclipse-temurin-17 AS build
-
 WORKDIR /app
-
-# 复制pom文件
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-# 复制源代码并构建
+RUN mvn -B dependency:go-offline
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn -B verify
 
-# 运行阶段
 FROM eclipse-temurin:17-jre-alpine
-
 WORKDIR /app
-
-# 复制构建好的jar文件
 COPY --from=build /app/target/*.jar app.jar
-
-# 创建上传目录
 RUN mkdir -p /app/uploads /app/thumbnails
-
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 CMD wget -qO- http://127.0.0.1:8080/api/actuator/health/readiness | grep -q UP || exit 1
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
-

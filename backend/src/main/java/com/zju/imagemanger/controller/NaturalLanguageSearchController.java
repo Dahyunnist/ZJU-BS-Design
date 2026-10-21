@@ -18,12 +18,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * MCP接口控制器（增强功能）
- * 提供通过自然语言对话方式检索图片的接口
+ * Keyword-based natural-language search endpoint. This is not an MCP protocol server.
  */
 @RestController
-@RequestMapping("/mcp")
-public class McpController {
+@RequestMapping("/search/natural-language")
+public class NaturalLanguageSearchController {
     @Autowired
     private ImageService imageService;
 
@@ -59,7 +58,7 @@ public class McpController {
             );
 
             Map<String, Object> result = new HashMap<>();
-            result.put("images", images.getContent());
+            result.put("images", images.getContent().stream().map(this::toResponse).collect(Collectors.toList()));
             result.put("total", images.getTotalElements());
             result.put("explanation", generateExplanation(query, searchParams));
 
@@ -67,6 +66,16 @@ public class McpController {
         } catch (Exception e) {
             return ApiResponse.error("搜索失败: " + e.getMessage());
         }
+    }
+
+    private ImageController.ImageResponse toResponse(Image image) {
+        List<com.zju.imagemanger.entity.Tag> tags = imageService.getImageTags(image.getId());
+        List<String> customTags = tags.stream().filter(tag -> tag.getType() == com.zju.imagemanger.entity.Tag.TagType.CUSTOM)
+                .map(com.zju.imagemanger.entity.Tag::getName).collect(Collectors.toList());
+        List<String> allTags = tags.stream().map(com.zju.imagemanger.entity.Tag::getName).collect(Collectors.toList());
+        return new ImageController.ImageResponse(image.getId(), image.getUserId(), image.getFilename(),
+                image.getFileSize(), image.getMimeType(), image.getWidth(), image.getHeight(), image.getUploadTime(),
+                Map.of(), image.getAiTags(), customTags, allTags, image.getStatus());
     }
 
     /**

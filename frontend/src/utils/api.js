@@ -44,3 +44,8 @@ api.interceptors.response.use(
 
 export default api
 
+export async function fetchAuthenticatedImage(url) {
+  const response = await api.get(url, { responseType: 'blob' })
+  return URL.createObjectURL(response.data)
+}
+

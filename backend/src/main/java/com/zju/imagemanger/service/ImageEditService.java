@@ -57,6 +57,7 @@ public class ImageEditService {
             throw new IllegalArgumentException("原图文件不存在");
         }
         
+        enforcePixelLimit(image.getWidth(), image.getHeight());
         BufferedImage original = ImageIO.read(originalFile);
         if (original == null) {
             throw new IllegalArgumentException("无法读取图片");
@@ -94,6 +95,7 @@ public class ImageEditService {
             throw new IllegalArgumentException("原图文件不存在");
         }
         
+        enforcePixelLimit(image.getWidth(), image.getHeight());
         BufferedImage original = ImageIO.read(originalFile);
         if (original == null) {
             throw new IllegalArgumentException("无法读取图片");
@@ -160,24 +162,24 @@ public class ImageEditService {
                                  com.zju.imagemanger.entity.Image originalImage,
                                  String suffix) throws IOException {
         // 生成新文件名
-        String filename = UUID.randomUUID().toString() + "_" + suffix + "_" + originalImage.getFilename();
+        String format = originalImage.getMimeType() != null && originalImage.getMimeType().contains("png")
+            ? "png" : "jpg";
+        String filename = UUID.randomUUID() + "." + format;
         Path uploadPath = Paths.get(uploadDir, String.valueOf(originalImage.getUserId()));
         Files.createDirectories(uploadPath);
         
         Path filePath = uploadPath.resolve(filename);
         
         // 保存图片
-        String format = originalImage.getMimeType() != null && originalImage.getMimeType().contains("png") 
-            ? "png" : "jpg";
         ImageIO.write(editedImage, format, filePath.toFile());
         
         // 创建新的图片记录
         com.zju.imagemanger.entity.Image newImage = new com.zju.imagemanger.entity.Image();
         newImage.setUserId(originalImage.getUserId());
-        newImage.setFilename(suffix + "_" + originalImage.getFilename());
+        newImage.setFilename(suffix + "_" + originalImage.getFilename().replaceAll("[\\p{Cntrl}/\\\\]", "_"));
         newImage.setFilePath(filePath.toString());
         newImage.setFileSize(Files.size(filePath));
-        newImage.setMimeType(originalImage.getMimeType());
+        newImage.setMimeType("png".equals(format) ? "image/png" : "image/jpeg");
         newImage.setWidth(editedImage.getWidth());
         newImage.setHeight(editedImage.getHeight());
         
@@ -191,6 +193,13 @@ public class ImageEditService {
         thumbnailGenerator.generateThumbnails(filePath.toFile(), newImage.getId().toString());
         
         return newImage.getId();
+    }
+
+    private void enforcePixelLimit(Integer width, Integer height) {
+        if (width == null || height == null || width <= 0 || height <= 0
+                || (long) width * height > 20_000_000L) {
+            throw new IllegalArgumentException("图片损坏或像素数超过2000万");
+        }
     }
     
 }

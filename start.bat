@@ -14,7 +14,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-where docker-compose >nul 2>&1
+docker compose version >nul 2>&1
 if %errorlevel% neq 0 (
     echo 错误: 未安装Docker Compose，请先安装Docker Compose
     pause
@@ -28,7 +28,7 @@ if not exist thumbnails mkdir thumbnails
 
 REM 启动服务
 echo Starting Docker containers...
-docker-compose up -d --build
+docker compose up -d --build
 
 echo.
 echo ==========================================
@@ -97,28 +97,13 @@ echo PC访问地址:
 echo   Frontend: http://localhost:3000
 echo   Backend API: http://localhost:8080/api
 echo.
-echo ==========================================
-echo 手机访问地址（请确保手机和电脑在同一WiFi网络）:
-echo ==========================================
-echo.
-echo   ===========================================
-echo   http://!ipv4_address!:3000
-echo   ===========================================
-echo.
-echo   请复制上面的地址到手机浏览器打开
-echo.
-echo   如果无法访问，请检查:
-echo   1. 确保使用的是WiFi网络IP（不是192.168.56.x虚拟适配器）
-echo      运行: get-real-ip.bat 查找正确的IP地址
-echo   2. 手机和电脑是否在同一WiFi网络
-echo   3. Windows防火墙是否允许3000端口
-echo   4. 运行: docker ps 检查端口是否绑定到0.0.0.0
+echo 局域网访问默认关闭，服务端口仅绑定本机回环地址。
 echo.
 echo ==========================================
 echo 其他命令:
 echo ==========================================
-echo   View logs: docker-compose logs -f
-echo   Stop services: docker-compose down
+echo   View logs: docker compose logs -f
+echo   Stop services: docker compose down
 echo.
 
 endlocal

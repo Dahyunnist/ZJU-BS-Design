@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { NavBar, Button, Toast, Slider, Tabs, Input, Tag, Space } from 'antd-mobile'
 import ReactCrop from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
-import api from '../utils/api'
+import api, { fetchAuthenticatedImage } from '../utils/api'
 import './ImageEdit.css'
 
 function ImageEdit() {
@@ -21,6 +21,7 @@ function ImageEdit() {
   const [completedCrop, setCompletedCrop] = useState(null)
   const imgRef = useRef(null)
   const canvasRef = useRef(null)
+  const objectUrls = useRef(new Set())
   
   // 色调调整相关
   const [brightness, setBrightness] = useState(0)
@@ -30,13 +31,16 @@ function ImageEdit() {
 
   useEffect(() => {
     loadImage()
+    return () => objectUrls.current.forEach(url => URL.revokeObjectURL(url))
   }, [id])
 
   const loadImage = async () => {
     try {
       const response = await api.get(`/images/${id}`)
       setImage(response.data.data)
-      setPreviewUrl(`/api/images/${id}/file`)
+      const url = await fetchAuthenticatedImage(`/api/images/${id}/file`)
+      objectUrls.current.add(url)
+      setPreviewUrl(url)
       // 初始化标签
       if (response.data.data.customTags) {
         setTags([...response.data.data.customTags])
@@ -176,11 +180,9 @@ function ImageEdit() {
       
       canvas.toBlob((blob) => {
         if (blob) {
-          // 释放旧的URL
-          if (previewUrl && previewUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(previewUrl)
-          }
-          setPreviewUrl(URL.createObjectURL(blob))
+          const url = URL.createObjectURL(blob)
+          objectUrls.current.add(url)
+          setPreviewUrl(url)
         }
       }, 'image/jpeg', 0.95)
     } catch (error) {

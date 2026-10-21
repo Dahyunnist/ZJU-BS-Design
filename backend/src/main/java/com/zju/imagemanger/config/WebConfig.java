@@ -13,11 +13,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:3000",
                         "http://localhost:5173",
-                        "http://10.193.73.98:3000",
-                        "http://10.193.73.98",
                         "http://127.0.0.1:3000"
                 )
-                .allowedOriginPatterns("*") // 放宽为所有来源，便于移动端/内网访问
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
